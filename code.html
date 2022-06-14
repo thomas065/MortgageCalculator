@@ -58,13 +58,110 @@
                 <h2 class="border-2 border-bottom border-dark">The Code for Mortgage Calculator</h2>
                 <div class="row row-cols-1 row-cols-lg-2">
                     <div class="col-lg-8">
-                        <pre class="line-numbers"><code class="language-javascript">
-                        //Call Hello World
-                        function helloWorld() {
-                        alert("hello World");
-                        }
-                        </code>
-                    </pre>
+                        <pre class="line-numbers">
+                            <code class="language-javascript">
+                            let $ = function(id){
+                            return document.getElementById(id);
+                            }
+
+                            let usd = function(num){
+                            return num.toLocaleString('en-US', {
+                            style: 'currency',
+                            currency: 'USD',
+                            });
+                            }
+
+                            //get values on btnCalculate press / controller
+                            function getValues(){
+                            //reset cols
+                            $('totalsContainer').classList.remove("invisible", "d-none");
+                            $('sharkImg').classList.add("invisible", "d-none");
+                            $('resultsTable').classList.remove("invisible", "d-none");
+
+                            //collect & parse data
+                            let loanAmount = parseFloat($('loanAmount').value);
+                            let payments = parseFloat($('payments').value);
+                            //allow for float later
+                            let rate = parseFloat($('rate').value);
+
+                            //pass data to calculate function
+                            let results = calculateLoan(loanAmount, payments, rate);
+
+                            //pass in calculations display data in table
+                            displayData(results);
+                            }
+
+                            //calculate amounts / logic
+                            function calculateLoan(loanAmount, payments, rate){
+
+                            //object for months
+                            let resultsObject = {};
+
+                            //create variables
+                            let totalInterest = 0;
+                            let balance = loanAmount;
+                            let interestPayment = 0
+                            let principalPayment;
+
+                            //monthly calculations
+                            let monthlyPayment = parseFloat((loanAmount * (rate/1200)) /
+                            (1-(1+(rate/1200))**(-Math.abs(payments))));
+
+                            //string to store in html
+                            let htmlString = ""
+
+                            //loop through number of payments do calculations
+                            for (let i = 0; i <= payments; i++) { let month=i;
+                                interestPayment=parseFloat(balance*(rate/1200));
+                                principalPayment=parseFloat(monthlyPayment - (balance * (rate/1200)));
+                                totalInterest=parseFloat((totalInterest + interestPayment));
+                                totalInterest=parseFloat(totalInterest); balance -=principalPayment;
+                                balance=Math.abs(parseFloat(balance)); //concatinate on to htmlString the results of the
+                                calculations htmlString +=`&lt;tr>
+                                &lt;td>${month+1}&lt;/td>&lt;td>${monthlyPayment.toFixed(2)}
+                                &lt;td>&lt;td>${principalPayment.toFixed(2)}&lt;/td>&lt;td>${interestPayment.
+                                toFixed(2)}&lt;/td>&lt;td>${totalInterest.toFixed(2)}&lt;/td>&lt;td>$
+                                {balance.toFixed(2)}&lt;/td>&lt;/tr>`
+                                }
+
+                                let totalCost = loanAmount + totalInterest;
+
+                                // display calculated variables to proper positions while inside function
+                                // use the usd function to convert to USD format
+                                resultsObject.monthlyPayment = usd(monthlyPayment);
+                                resultsObject.totalPrincipal = usd(totalPrincipal);
+                                resultsObject.totalInterest = usd(totalInterest);
+                                resultsObject.totalCost = usd(totalCost);
+
+                                resultsObject.htmlString = htmlString;
+
+                                //return results object
+                                return resultsObject;
+                                }
+
+                                //display the data in a table / view
+                                function displayData(resultsObject){
+                                $("monthlyPayment").innerHTML = resultsObject.monthlyPayment;
+                                $("totalPrincipal").innerHTML = resultsObject.totalPrincipal;
+                                $("totalInterest").innerHTML = resultsObject.totalInterest;
+                                $("totalCost").innerHTML = resultsObject.totalCost;
+                                //creates table
+                                $("results").innerHTML = resultsObject.htmlString;
+                                }
+
+                                //reset + clear app when btnReset pressed
+                                function resetPage(){
+                                $('totalsContainer').classList.add("invisible", "d-none");
+                                $('sharkImg').classList.remove("invisible", "d-none");
+                                $('resultsTable').classList.add("invisible", "d-none");
+
+                                //resets inputs
+                                $('loanAmount').value = "15000";
+                                $('payments').value = "60";
+                                $('rate').value = "3";
+                                }
+                            </code>
+                        </pre>
                     </div>
                     <div class="col-lg-4">
                         <p>The Code is structured in three functions.</p>
